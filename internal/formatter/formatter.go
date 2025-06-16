@@ -61,8 +61,12 @@ func NewTypedFormatter(formatType FormatType, dataType DataType) (Formatter, err
 		switch dataType {
 		case NodeDataType:
 			return &NodeFormatter{}, nil
-		case PartitionDataType, JobDataType, GenericDataType:
-			// Use the standard table formatter for now
+		case PartitionDataType:
+			return &PartitionFormatter{}, nil
+		case JobDataType:
+			return &JobFormatter{}, nil
+		case GenericDataType:
+			// Use the standard table formatter for generic data
 			return &TableFormatter{}, nil
 		default:
 			return &TableFormatter{}, nil

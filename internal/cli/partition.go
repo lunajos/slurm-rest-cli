@@ -8,14 +8,17 @@ import (
 )
 
 var (
-	// Partition list flags
+	// Partition list and update flags
 	partitionState string
 	partitionName  string
 	partitionFormat string
+	partitionNodes string
+	partitionQOS string
+	partitionTRES string
 
 	// Partition update flags
 	partitionDefaultTime   string
-	partitionMaxTime       string
+	partitionMaxTime       string // Used for both list filtering and updates
 	partitionPriority      int
 	partitionAllowGroups   string
 	partitionAllowAccounts string
@@ -30,6 +33,15 @@ var (
 	partitionDefMemPerNode string
 	partitionMaxMemPerCPU  string
 	partitionMaxMemPerNode string
+	partitionNodes         string
+	partitionAllocNodes    string
+	partitionAlternate     string
+	partitionGraceTime     int
+	partitionQOS           string
+	partitionDisableRoot   int
+	partitionExclusiveUser int
+	partitionOverTimeLimit int
+	partitionPreemptMode   string
 )
 
 // partitionCmd represents the partition command
@@ -97,6 +109,10 @@ func init() {
 	partitionListCmd.Flags().StringVar(&partitionState, "state", "", "Filter partitions by state")
 	partitionListCmd.Flags().StringVar(&partitionName, "name", "", "Filter partitions by name")
 	partitionListCmd.Flags().StringVarP(&partitionFormat, "format", "o", "", "Output format specifier")
+	partitionListCmd.Flags().StringVar(&partitionNodes, "nodes", "", "Filter partitions by node list")
+	partitionListCmd.Flags().StringVar(&partitionQOS, "qos", "", "Filter partitions by QOS")
+	partitionListCmd.Flags().StringVar(&partitionTRES, "tres", "", "Filter partitions by TRES")
+	partitionListCmd.Flags().StringVar(&partitionMaxTime, "max-time", "", "Filter partitions by max time limit")
 
 	// Partition update flags
 	partitionUpdateCmd.Flags().StringVar(&partitionState, "state", "", "Set partition state (e.g., UP, DOWN, DRAIN, INACTIVE)")
@@ -116,4 +132,13 @@ func init() {
 	partitionUpdateCmd.Flags().StringVar(&partitionDefMemPerNode, "def-mem-per-node", "", "Default memory per node (e.g., '4G')")
 	partitionUpdateCmd.Flags().StringVar(&partitionMaxMemPerCPU, "max-mem-per-cpu", "", "Maximum memory per CPU (e.g., '2G')")
 	partitionUpdateCmd.Flags().StringVar(&partitionMaxMemPerNode, "max-mem-per-node", "", "Maximum memory per node (e.g., '64G')")
+	partitionUpdateCmd.Flags().StringVar(&partitionNodes, "nodes", "", "Node list for partition")
+	partitionUpdateCmd.Flags().StringVar(&partitionAllocNodes, "alloc-nodes", "", "Allowed allocation nodes")
+	partitionUpdateCmd.Flags().StringVar(&partitionAlternate, "alternate", "", "Alternate partition")
+	partitionUpdateCmd.Flags().IntVar(&partitionGraceTime, "grace-time", 0, "Grace time for jobs")
+	partitionUpdateCmd.Flags().StringVar(&partitionQOS, "qos", "", "Quality of Service")
+	partitionUpdateCmd.Flags().IntVar(&partitionDisableRoot, "disable-root-jobs", -1, "Disable root jobs (1=disable, 0=allow, -1=unchanged)")
+	partitionUpdateCmd.Flags().IntVar(&partitionExclusiveUser, "exclusive-user", -1, "Exclusive user (1=exclusive, 0=shared, -1=unchanged)")
+	partitionUpdateCmd.Flags().IntVar(&partitionOverTimeLimit, "over-time-limit", -1, "Over time limit")
+	partitionUpdateCmd.Flags().StringVar(&partitionPreemptMode, "preempt-mode", "", "Preemption mode")
 }

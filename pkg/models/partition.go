@@ -83,4 +83,13 @@ type PartitionUpdateRequest struct {
 	DefMemPerNode       int64    `json:"def_mem_per_node,omitempty"`
 	MaxMemPerCPU        int64    `json:"max_mem_per_cpu,omitempty"`
 	MaxMemPerNode       int64    `json:"max_mem_per_node,omitempty"`
+	Nodes               string   `json:"nodes,omitempty"`
+	AllocNodes          string   `json:"alloc_nodes,omitempty"`
+	Alternate           string   `json:"alternate,omitempty"`
+	GraceTime           int      `json:"grace_time,omitempty"`
+	QOS                 string   `json:"qos,omitempty"`
+	DisableRootJobs     int      `json:"disable_root_jobs,omitempty"`
+	ExclusiveUser       int      `json:"exclusive_user,omitempty"`
+	OverTimeLimit       int      `json:"over_time_limit,omitempty"`
+	PreemptMode         string   `json:"preempt_mode,omitempty"`
 }

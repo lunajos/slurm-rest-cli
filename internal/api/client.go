@@ -15,9 +15,10 @@ import (
 
 // Client represents a Slurm REST API client.
 type Client struct {
-	BaseURL    string
-	HTTPClient *http.Client
-	Auth       Authenticator
+	BaseURL         string
+	HTTPClient      *http.Client
+	Auth            Authenticator
+	lastResponseBody string
 }
 
 // Authenticator is an interface for different authentication methods.
@@ -83,6 +84,9 @@ func (c *Client) Request(method, endpoint string, body interface{}, result inter
 	if err != nil {
 		return fmt.Errorf("error reading response body: %w", err)
 	}
+	
+	// Store the response body for later retrieval
+	c.lastResponseBody = string(respBody)
 
 	// Check for error status codes
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
@@ -114,6 +118,11 @@ func (c *Client) Request(method, endpoint string, body interface{}, result inter
 	}
 
 	return nil
+}
+
+// GetLastResponseBody returns the body of the last response received
+func (c *Client) GetLastResponseBody() string {
+	return c.lastResponseBody
 }
 
 // GenerateCurlCommand generates an equivalent curl command for a request.

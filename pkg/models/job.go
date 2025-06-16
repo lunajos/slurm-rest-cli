@@ -20,7 +20,7 @@ type JobDescr struct {
 	Partition             string   `json:"partition,omitempty"`
 	QOS                   string   `json:"qos,omitempty"`
 	Comment               string   `json:"comment,omitempty"`
-	Nodes                 int      `json:"nodes,omitempty"`
+	Nodes                 string    `json:"nodes,omitempty"`
 	Tasks                 int      `json:"tasks,omitempty"`
 	CPUsPerTask           int      `json:"cpus_per_task,omitempty"`
 	MemPerCPU             string   `json:"mem_per_cpu,omitempty"`

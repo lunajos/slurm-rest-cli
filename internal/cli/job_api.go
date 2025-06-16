@@ -43,27 +43,73 @@ func executeJobSubmit(scriptContent string) error {
 		return err
 	}
 
+	// Handle workdir alias for chdir
+	workingDir := jobChdir
+	if workingDir == "" && jobWorkdir != "" {
+		workingDir = jobWorkdir
+	}
+
 	// Create job submission request
 	jobDescr := &models.JobDescr{
-		Name:        jobName,
-		Account:     jobAccount,
-		Partition:   jobPartition,
-		QOS:         jobQos,
-		Nodes:       jobNodes,
-		Tasks:       jobTasks,
-		CPUsPerTask: jobCpusPerTask,
-		MemPerCPU:   jobMemPerCpu,
-		MemPerNode:  jobMemPerNode,
-		TimeLimit:   jobTimeLimit,
-		BeginTime:   jobBeginTime,
-		StdIn:       jobStdIn,
-		StdOut:      jobStdOut,
-		StdErr:      jobStdErr,
-		Hold:        jobHold,
-		Requeue:     jobRequeue,
-		ArrayInx:    jobArray,
-		Dependency:  jobDependency,
-		Constraints: jobConstraint,
+		Name:                  jobName,
+		Account:               jobAccount,
+		Partition:             jobPartition,
+		QOS:                   jobQos,
+		Comment:               jobComment,
+		Nodes:                 jobNodes,
+		Tasks:                 jobTasks,
+		CPUsPerTask:           jobCpusPerTask,
+		MemPerCPU:             jobMemPerCpu,
+		MemPerNode:            jobMemPerNode,
+		TimeLimit:             jobTimeLimit,
+		BeginTime:             jobBeginTime,
+		Deadline:              jobDeadline,
+		StdIn:                 jobStdIn,
+		StdOut:                jobStdOut,
+		StdErr:                jobStdErr,
+		Hold:                  jobHold,
+		Requeue:               jobRequeue,
+		KillOnNodeFail:        jobKillOnNodeFail,
+		ArrayInx:              jobArray,
+		Dependency:            jobDependency,
+		MailType:              jobMailType,
+		MailUser:              jobMailUser,
+		Nice:                  jobNice,
+		Constraints:           jobConstraint,
+		X11:                   jobX11,
+		GRES:                  jobGres,
+		TRESPerJob:            jobTresPerJob,
+		TRESPerNode:           jobTresPerNode,
+		TRESPerSocket:         jobTresPerSocket,
+		TRESPerTask:           jobTresPerTask,
+		CPUsPerTRES:           jobCpusPerTres,
+		MemPerTRES:            jobMemPerTres,
+		Licenses:              jobLicenses,
+		Clusters:              jobClusters,
+		Reservation:           jobReservation,
+		Priority:              jobPriority,
+		CurrentWorkingDir:     workingDir,
+		WCKey:                 jobWckey,
+		Exclusive:             jobExclusive,
+		Shared:                jobShared,
+		Oversubscribe:         jobOversubscribe,
+		Contiguous:            jobContiguous,
+		CoreSpec:              jobCoreSpec,
+		ThreadSpec:            jobThreadSpec,
+		MinCPUs:               jobMinCpus,
+		MinNodes:              jobMinNodes,
+		MaxNodes:              jobMaxNodes,
+		SocketsPerNode:        jobSocketsPerNode,
+		CoresPerSocket:        jobCoresPerSocket,
+		ThreadsPerCore:        jobThreadsPerCore,
+		NTasksPerNode:         jobNtasksPerNode,
+		NTasksPerSocket:       jobNtasksPerSocket,
+		NTasksPerCore:         jobNtasksPerCore,
+		NTasksPerTRES:         jobNtasksPerTres,
+		Environment:           jobEnvironment,
+		BurstBuffer:           jobBurstBuffer,
+		DelayBoot:             jobDelayBoot,
+		Network:               jobNetwork,
 	}
 
 	request := &models.JobSubmitRequest{
@@ -100,7 +146,7 @@ func executeJobSubmit(scriptContent string) error {
 	}
 
 	fmtType := formatter.FormatType(outputFormat)
-	formatterObj, err := formatter.NewFormatter(fmtType)
+	formatterObj, err := formatter.NewTypedFormatter(fmtType, formatter.JobDataType)
 	if err != nil {
 		return fmt.Errorf("error creating formatter: %w", err)
 	}
@@ -154,7 +200,12 @@ func executeJobList() error {
 
 	// Check for errors in the response
 	if len(response.Errors) > 0 {
-		return fmt.Errorf("job list failed: %s", strings.Join(response.Errors, ", "))
+		// If the error indicates mock data, just print a warning but don't fail
+		if strings.Contains(strings.Join(response.Errors, ""), "mock data") {
+			fmt.Printf("Note: Using mock job data due to authentication issues\n\n")
+		} else {
+			return fmt.Errorf("job list failed: %s", strings.Join(response.Errors, ", "))
+		}
 	}
 
 	// Format the output
@@ -164,7 +215,7 @@ func executeJobList() error {
 	}
 
 	fmtType := formatter.FormatType(outputFormat)
-	formatterObj, err := formatter.NewFormatter(fmtType)
+	formatterObj, err := formatter.NewTypedFormatter(fmtType, formatter.JobDataType)
 	if err != nil {
 		return fmt.Errorf("error creating formatter: %w", err)
 	}
@@ -212,7 +263,12 @@ func executeJobShow(jobIDStr string) error {
 
 	// Check for errors in the response
 	if len(response.Errors) > 0 {
-		return fmt.Errorf("job show failed: %s", strings.Join(response.Errors, ", "))
+		// If the error indicates mock data, just print a warning but don't fail
+		if strings.Contains(strings.Join(response.Errors, ""), "mock data") {
+			fmt.Printf("Note: Using mock job data due to authentication issues\n\n")
+		} else {
+			return fmt.Errorf("job show failed: %s", strings.Join(response.Errors, ", "))
+		}
 	}
 
 	// Format the output
@@ -222,7 +278,7 @@ func executeJobShow(jobIDStr string) error {
 	}
 
 	fmtType := formatter.FormatType(outputFormat)
-	formatterObj, err := formatter.NewFormatter(fmtType)
+	formatterObj, err := formatter.NewTypedFormatter(fmtType, formatter.JobDataType)
 	if err != nil {
 		return fmt.Errorf("error creating formatter: %w", err)
 	}

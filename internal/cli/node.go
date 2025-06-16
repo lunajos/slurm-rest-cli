@@ -12,11 +12,17 @@ var (
 	nodeState          string
 	nodePartitionFilter string
 	nodeFormat         string
+	nodeName           string
+	nodeAddress        string
+	nodeHostname       string
+	nodeFeatureFilter  string
+	nodeGres           string
 	
 	// Node update flags
 	nodeReason   string
 	nodeWeight   int
 	nodeFeatures string
+	nodeComment  string
 )
 
 // nodeCmd represents the node command
@@ -84,10 +90,16 @@ func init() {
 	nodeListCmd.Flags().StringVar(&nodeState, "state", "", "Filter nodes by state")
 	nodeListCmd.Flags().StringVarP(&nodePartitionFilter, "partition", "p", "", "Filter nodes by partition")
 	nodeListCmd.Flags().StringVarP(&nodeFormat, "format", "o", "", "Output format specifier")
+	nodeListCmd.Flags().StringVar(&nodeName, "name", "", "Filter nodes by name (supports wildcards)")
+	nodeListCmd.Flags().StringVar(&nodeAddress, "address", "", "Filter nodes by address")
+	nodeListCmd.Flags().StringVar(&nodeHostname, "hostname", "", "Filter nodes by hostname")
+	nodeListCmd.Flags().StringVar(&nodeFeatureFilter, "features", "", "Filter nodes by features")
+	nodeListCmd.Flags().StringVar(&nodeGres, "gres", "", "Filter nodes by generic resources")
 
 	// Node update flags
 	nodeUpdateCmd.Flags().StringVar(&nodeState, "state", "", "Set node state (e.g., DOWN, DRAIN, RESUME)")
 	nodeUpdateCmd.Flags().StringVar(&nodeReason, "reason", "", "Reason for state change")
 	nodeUpdateCmd.Flags().IntVar(&nodeWeight, "weight", 0, "Node weight for scheduling")
 	nodeUpdateCmd.Flags().StringVar(&nodeFeatures, "features", "", "Node features (comma-separated)")
+	nodeUpdateCmd.Flags().StringVar(&nodeComment, "comment", "", "Comment for the node")
 }

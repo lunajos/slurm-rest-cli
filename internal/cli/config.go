@@ -37,14 +37,11 @@ var configGetCmd = &cobra.Command{
 
 // configSetCmd represents the config set command
 var configSetCmd = &cobra.Command{
-	Use:   "set [key] [value]",
-	Short: "Set a configuration value",
-	Long:  `Set a configuration value in the config file.`,
-	Args:  cobra.ExactArgs(2),
+	Use:   "set [key=value]...",
+	Short: "Set one or more configuration values",
+	Long:  `Set one or more configuration values in the config file. Values can be provided as key=value pairs.`,
+	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		key := args[0]
-		value := args[1]
-
 		// Load existing config
 		home, err := os.UserHomeDir()
 		if err != nil {
@@ -69,8 +66,21 @@ var configSetCmd = &cobra.Command{
 			}
 		}
 
-		// Set the value in the config map
-		setNestedValue(configMap, key, value)
+		// Process each key=value pair
+		for _, arg := range args {
+			parts := strings.SplitN(arg, "=", 2)
+			if len(parts) != 2 {
+				fmt.Fprintf(os.Stderr, "Invalid format for '%s'. Use key=value format.\n", arg)
+				continue
+			}
+			
+			key := parts[0]
+			value := parts[1]
+			
+			// Set the value in the config map
+			setNestedValue(configMap, key, value)
+			fmt.Printf("Configuration key '%s' set to '%s'\n", key, value)
+		}
 
 		// Write the updated config back to file
 		configDir := filepath.Join(home, ".config")
@@ -90,7 +100,7 @@ var configSetCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		fmt.Printf("Configuration key '%s' set to '%s'\n", key, value)
+		fmt.Println("Configuration updated successfully.")
 	},
 }
 

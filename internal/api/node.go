@@ -188,3 +188,37 @@ func createMockNodesResponse() *models.NodesResponse {
 		},
 	}
 }
+
+// createMockSingleNodeResponse creates a mock node response for a specific node
+func createMockSingleNodeResponse(nodeName string) *models.NodeResponse {
+	// Default node properties
+	node := models.NodeInfo{
+		Name:           nodeName,
+		State:          "IDLE",
+		CPUs:           32,
+		Sockets:        2,
+		Cores:          16,
+		CoresPerSocket: 8,
+		ThreadsPerCore: 2,
+		RealMemory:     131072, // 128GB in MB
+		Features:       "skylake,avx512",
+		Partitions:     []string{"compute", "debug"},
+		Weight:         1,
+	}
+	
+	// Customize based on node name pattern if desired
+	if strings.Contains(nodeName, "gpu") {
+		node.Features = "gpu,tesla,cuda"
+		node.Partitions = []string{"gpu", "compute"}
+	} else if strings.Contains(nodeName, "login") {
+		node.State = "RESERVED"
+		node.Partitions = []string{"login"}
+	} else if strings.Contains(nodeName, "bigmem") {
+		node.RealMemory = 524288 // 512GB
+		node.Partitions = []string{"bigmem", "compute"}
+	}
+	
+	return &models.NodeResponse{
+		Node: node,
+	}
+}

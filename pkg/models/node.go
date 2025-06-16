@@ -74,4 +74,5 @@ type NodeUpdateRequest struct {
 	Reason   string `json:"reason,omitempty"`
 	Weight   int    `json:"weight,omitempty"`
 	Features string `json:"features,omitempty"`
+	Comment  string `json:"comment,omitempty"`
 }

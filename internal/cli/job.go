@@ -10,25 +10,66 @@ import (
 
 var (
 	// Job submission flags
-	jobName      string
-	jobAccount   string
-	jobPartition string
-	jobQos       string
-	jobNodes     int
-	jobTasks     int
-	jobCpusPerTask int
-	jobMemPerCpu  string
-	jobMemPerNode string
-	jobTimeLimit  string
-	jobBeginTime  string
-	jobStdIn      string
-	jobStdOut     string
-	jobStdErr     string
-	jobHold       bool
-	jobRequeue    bool
-	jobArray      string
-	jobDependency string
-	jobConstraint string
+	jobName              string
+	jobAccount           string
+	jobPartition         string
+	jobQos               string
+	jobComment           string
+	jobNodes             string
+	jobTasks             int
+	jobCpusPerTask       int
+	jobMemPerCpu         string
+	jobMemPerNode        string
+	jobTimeLimit         string
+	jobBeginTime         string
+	jobDeadline          string
+	jobStdIn             string
+	jobStdOut            string
+	jobStdErr            string
+	jobHold              bool
+	jobRequeue           bool
+	jobKillOnNodeFail    bool
+	jobArray             string
+	jobDependency        string
+	jobMailType          string
+	jobMailUser          string
+	jobNice              int
+	jobConstraint        string
+	jobX11               bool
+	jobGres              string
+	jobTresPerJob        string
+	jobTresPerNode       string
+	jobTresPerSocket     string
+	jobTresPerTask       string
+	jobCpusPerTres       string
+	jobMemPerTres        string
+	jobLicenses          string
+	jobClusters          []string
+	jobReservation       string
+	jobPriority          int
+	jobChdir             string
+	jobWorkdir           string
+	jobWckey             string
+	jobExclusive         bool
+	jobShared            bool
+	jobOversubscribe     bool
+	jobContiguous        bool
+	jobCoreSpec          int
+	jobThreadSpec        int
+	jobMinCpus           int
+	jobMinNodes          int
+	jobMaxNodes          int
+	jobSocketsPerNode    int
+	jobCoresPerSocket    int
+	jobThreadsPerCore    int
+	jobNtasksPerNode     int
+	jobNtasksPerSocket   int
+	jobNtasksPerCore     int
+	jobNtasksPerTres     string
+	jobEnvironment       []string
+	jobBurstBuffer       string
+	jobDelayBoot         int
+	jobNetwork           string
 
 	// Job list flags
 	jobUser      string
@@ -172,21 +213,62 @@ func init() {
 	jobSubmitCmd.Flags().StringVarP(&jobAccount, "account", "A", "", "Account to charge resources to")
 	jobSubmitCmd.Flags().StringVarP(&jobPartition, "partition", "p", "", "Partition to submit job to")
 	jobSubmitCmd.Flags().StringVar(&jobQos, "qos", "", "Quality of service")
-	jobSubmitCmd.Flags().IntVarP(&jobNodes, "nodes", "N", 1, "Number of nodes required")
+	jobSubmitCmd.Flags().StringVar(&jobComment, "comment", "", "Comment")
+	jobSubmitCmd.Flags().StringVarP(&jobNodes, "nodes", "N", "1", "Number of nodes required")
 	jobSubmitCmd.Flags().IntVarP(&jobTasks, "ntasks", "n", 1, "Number of tasks")
 	jobSubmitCmd.Flags().IntVarP(&jobCpusPerTask, "cpus-per-task", "c", 1, "CPUs per task")
 	jobSubmitCmd.Flags().StringVar(&jobMemPerCpu, "mem-per-cpu", "", "Memory per CPU")
 	jobSubmitCmd.Flags().StringVar(&jobMemPerNode, "mem", "", "Memory per node")
 	jobSubmitCmd.Flags().StringVarP(&jobTimeLimit, "time", "t", "", "Time limit")
 	jobSubmitCmd.Flags().StringVar(&jobBeginTime, "begin", "", "Begin time")
+	jobSubmitCmd.Flags().StringVar(&jobDeadline, "deadline", "", "Job deadline")
 	jobSubmitCmd.Flags().StringVarP(&jobStdIn, "input", "i", "", "Standard input file")
 	jobSubmitCmd.Flags().StringVarP(&jobStdOut, "output", "o", "", "Standard output file")
 	jobSubmitCmd.Flags().StringVarP(&jobStdErr, "error", "e", "", "Standard error file")
 	jobSubmitCmd.Flags().BoolVarP(&jobHold, "hold", "H", false, "Submit job in held state")
 	jobSubmitCmd.Flags().BoolVar(&jobRequeue, "requeue", false, "Requeue job on failure")
+	jobSubmitCmd.Flags().BoolVar(&jobKillOnNodeFail, "kill-on-node-fail", true, "Kill job if any node fails")
 	jobSubmitCmd.Flags().StringVarP(&jobArray, "array", "a", "", "Job array indices")
 	jobSubmitCmd.Flags().StringVarP(&jobDependency, "dependency", "d", "", "Job dependencies")
+	jobSubmitCmd.Flags().StringVar(&jobMailType, "mail-type", "", "Mail events to notify (BEGIN, END, FAIL, REQUEUE, ALL)")
+	jobSubmitCmd.Flags().StringVar(&jobMailUser, "mail-user", "", "User to receive mail notification")
+	jobSubmitCmd.Flags().IntVar(&jobNice, "nice", 0, "Scheduling priority adjustment")
 	jobSubmitCmd.Flags().StringVarP(&jobConstraint, "constraint", "C", "", "Node constraints")
+	jobSubmitCmd.Flags().BoolVar(&jobX11, "x11", false, "Enable X11 forwarding")
+	jobSubmitCmd.Flags().StringVar(&jobGres, "gres", "", "Generic consumable resources")
+	jobSubmitCmd.Flags().StringVar(&jobTresPerJob, "tres-per-job", "", "TRES per job")
+	jobSubmitCmd.Flags().StringVar(&jobTresPerNode, "tres-per-node", "", "TRES per node")
+	jobSubmitCmd.Flags().StringVar(&jobTresPerSocket, "tres-per-socket", "", "TRES per socket")
+	jobSubmitCmd.Flags().StringVar(&jobTresPerTask, "tres-per-task", "", "TRES per task")
+	jobSubmitCmd.Flags().StringVar(&jobCpusPerTres, "cpus-per-gpu", "", "CPUs per GPU")
+	jobSubmitCmd.Flags().StringVar(&jobMemPerTres, "mem-per-gpu", "", "Memory per GPU")
+	jobSubmitCmd.Flags().StringVarP(&jobLicenses, "licenses", "L", "", "License specifications")
+	jobSubmitCmd.Flags().StringSliceVarP(&jobClusters, "clusters", "M", nil, "Clusters to submit job to")
+	jobSubmitCmd.Flags().StringVar(&jobReservation, "reservation", "", "Resource reservation name")
+	jobSubmitCmd.Flags().IntVar(&jobPriority, "priority", 0, "Job priority")
+	jobSubmitCmd.Flags().StringVarP(&jobChdir, "chdir", "D", "", "Working directory for the job")
+	jobSubmitCmd.Flags().StringVar(&jobWorkdir, "workdir", "", "Working directory for the job (alias for --chdir)")
+	jobSubmitCmd.Flags().StringVar(&jobWckey, "wckey", "", "Job's workload characterization key")
+	jobSubmitCmd.Flags().BoolVar(&jobExclusive, "exclusive", false, "Allocate nodes exclusively")
+	jobSubmitCmd.Flags().BoolVar(&jobShared, "share", false, "Share nodes with other jobs")
+	jobSubmitCmd.Flags().BoolVar(&jobOversubscribe, "oversubscribe", false, "Allow job to oversubscribe resources")
+	jobSubmitCmd.Flags().BoolVar(&jobContiguous, "contiguous", false, "Require contiguous nodes")
+	jobSubmitCmd.Flags().IntVar(&jobCoreSpec, "core-spec", 0, "Count of specialized cores per node")
+	jobSubmitCmd.Flags().IntVar(&jobThreadSpec, "thread-spec", 0, "Count of specialized threads per node")
+	jobSubmitCmd.Flags().IntVar(&jobMinCpus, "mincpus", 0, "Minimum CPUs per node")
+	jobSubmitCmd.Flags().IntVar(&jobMinNodes, "min-nodes", 0, "Minimum number of nodes")
+	jobSubmitCmd.Flags().IntVar(&jobMaxNodes, "max-nodes", 0, "Maximum number of nodes")
+	jobSubmitCmd.Flags().IntVar(&jobSocketsPerNode, "sockets-per-node", 0, "Sockets per node")
+	jobSubmitCmd.Flags().IntVar(&jobCoresPerSocket, "cores-per-socket", 0, "Cores per socket")
+	jobSubmitCmd.Flags().IntVar(&jobThreadsPerCore, "threads-per-core", 0, "Threads per core")
+	jobSubmitCmd.Flags().IntVar(&jobNtasksPerNode, "ntasks-per-node", 0, "Number of tasks per node")
+	jobSubmitCmd.Flags().IntVar(&jobNtasksPerSocket, "ntasks-per-socket", 0, "Number of tasks per socket")
+	jobSubmitCmd.Flags().IntVar(&jobNtasksPerCore, "ntasks-per-core", 0, "Number of tasks per core")
+	jobSubmitCmd.Flags().StringVar(&jobNtasksPerTres, "ntasks-per-gpu", "", "Number of tasks per GPU")
+	jobSubmitCmd.Flags().StringSliceVar(&jobEnvironment, "export", nil, "Environment variables to export")
+	jobSubmitCmd.Flags().StringVar(&jobBurstBuffer, "bb", "", "Burst buffer specification")
+	jobSubmitCmd.Flags().IntVar(&jobDelayBoot, "delay-boot", 0, "Delay boot for this number of minutes")
+	jobSubmitCmd.Flags().StringVar(&jobNetwork, "network", "", "Network specification")
 
 	// Job list flags
 	jobListCmd.Flags().StringVarP(&jobUser, "user", "u", "", "Filter jobs by user")

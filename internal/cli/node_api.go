@@ -50,6 +50,21 @@ func executeNodeList() error {
 	if nodePartitionFilter != "" {
 		filters["partition"] = nodePartitionFilter
 	}
+	if nodeName != "" {
+		filters["name"] = nodeName
+	}
+	if nodeAddress != "" {
+		filters["address"] = nodeAddress
+	}
+	if nodeHostname != "" {
+		filters["hostname"] = nodeHostname
+	}
+	if nodeFeatureFilter != "" {
+		filters["features"] = nodeFeatureFilter
+	}
+	if nodeGres != "" {
+		filters["gres"] = nodeGres
+	}
 
 	// If curl flag is set, just print the curl command
 	if showCurl {
@@ -161,6 +176,7 @@ func executeNodeUpdate(nodeName string) error {
 		Reason:   nodeReason,
 		Weight:   nodeWeight,
 		Features: nodeFeatures,
+		Comment:  nodeComment,
 	}
 
 	// If curl flag is set, just print the curl command
