@@ -41,10 +41,12 @@ func (a *UserTokenAuth) AddAuthHeaders(req *http.Request) error {
 
 // JWTAuth represents authentication using JWT Bearer token.
 type JWTAuth struct {
-	JWT string
+	JWT      string
+	Username string
 }
 
 // AddAuthHeaders adds the JWT Bearer authentication header to the request.
+// If a username is provided, also adds the X-SLURM-USER-NAME header.
 func (a *JWTAuth) AddAuthHeaders(req *http.Request) error {
 	if a.JWT == "" {
 		return fmt.Errorf("JWT token is required")
@@ -57,19 +59,26 @@ func (a *JWTAuth) AddAuthHeaders(req *http.Request) error {
 	}
 	
 	req.Header.Set("Authorization", jwt)
+	
+	// Add username header if available
+	if a.Username != "" {
+		req.Header.Set("X-SLURM-USER-NAME", a.Username)
+	}
+	
 	return nil
 }
 
 // NewAuthenticator creates an appropriate authenticator based on the provided credentials.
 func NewAuthenticator(username, token, jwt string) Authenticator {
-	// JWT authentication takes precedence
-	if jwt != "" {
-		return &JWTAuth{JWT: jwt}
-	}
-	
-	// User + Token authentication
+	// If both username and token are explicitly provided, use User+Token auth
+	// This allows overriding JWT auth with explicit token-based auth
 	if username != "" && token != "" {
 		return &UserTokenAuth{Username: username, Token: token}
+	}
+	
+	// JWT authentication is next in priority
+	if jwt != "" {
+		return &JWTAuth{JWT: jwt, Username: username}
 	}
 	
 	// Token-only authentication

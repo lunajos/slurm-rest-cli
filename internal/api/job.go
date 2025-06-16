@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -8,6 +9,7 @@ import (
 	"time"
 
 	"github.com/slurm-rest-cli/srest/pkg/models"
+	"github.com/spf13/viper"
 )
 
 // JobClient provides methods for interacting with the Slurm job API.
@@ -19,6 +21,43 @@ type JobClient struct {
 // NewJobClient creates a new job client.
 func NewJobClient(client *Client) *JobClient {
 	return &JobClient{client: client}
+}
+
+// SubmitJob submits a job to the Slurm API.
+func (c *JobClient) SubmitJob(script string, job *models.JobDescr) (*models.JobSubmitResponse, error) {
+	// Create request body
+	reqBody := models.JobSubmitRequest{
+		Script: script,
+		Job:    job,
+	}
+
+	// Add debug information for verbose mode
+	verbose := viper.GetBool("verbose")
+	if verbose {
+		// Marshal request body for debug output
+		data, err := json.Marshal(reqBody)
+		if err != nil {
+			fmt.Printf("Debug: Error marshaling request for debug: %v\n", err)
+		} else {
+			fmt.Printf("Debug: Submitting job to %s/slurm/v0.0.42/job/submit\n", c.client.BaseURL)
+			fmt.Printf("Debug: Request body: %s\n", string(data))
+		}
+	}
+
+	// Use the client's Request method to handle the API call
+	var result models.JobSubmitResponse
+	err := c.client.Request(http.MethodPost, "/slurm/v0.0.42/job/submit", reqBody, &result)
+	
+	// Add debug information for verbose mode
+	if verbose {
+		fmt.Printf("Debug: Response body: %s\n", c.client.GetLastResponseBody())
+	}
+	
+	if err != nil {
+		return nil, fmt.Errorf("error submitting job: %w", err)
+	}
+
+	return &result, nil
 }
 
 // Submit submits a job to the Slurm cluster.

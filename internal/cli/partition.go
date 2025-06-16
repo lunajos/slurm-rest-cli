@@ -33,11 +33,11 @@ var (
 	partitionDefMemPerNode string
 	partitionMaxMemPerCPU  string
 	partitionMaxMemPerNode string
-	partitionNodes         string
+	// partitionNodes is already declared above
 	partitionAllocNodes    string
 	partitionAlternate     string
 	partitionGraceTime     int
-	partitionQOS           string
+	// partitionQOS is already declared above
 	partitionDisableRoot   int
 	partitionExclusiveUser int
 	partitionOverTimeLimit int

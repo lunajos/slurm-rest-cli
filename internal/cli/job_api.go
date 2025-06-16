@@ -20,14 +20,27 @@ func createJobClient() (*api.JobClient, error) {
 		return nil, fmt.Errorf("error loading configuration: %w", err)
 	}
 
-	// Get API URL
-	apiURL := cfg.GetAPIURL()
+	// Get API URL from flag or config
+	apiURL := viper.GetString("url")
+	if apiURL == "" {
+		apiURL = cfg.GetAPIURL()
+	}
 	if apiURL == "" {
 		return nil, fmt.Errorf("API URL not configured. Use --url flag or set in config")
 	}
 
-	// Get authentication info
-	token, jwt, username := cfg.GetAuthInfo()
+	// Get authentication info from flags first, then config
+	// Command line flags take precedence over config file
+	username := viper.GetString("user")
+	token := viper.GetString("token")
+	jwt := viper.GetString("jwt")
+	
+	// If no auth info from flags, use config
+	if username == "" && token == "" && jwt == "" {
+		token, jwt, username = cfg.GetAuthInfo()
+	}
+	
+	// Create authenticator based on available credentials
 	auth := api.NewAuthenticator(username, token, jwt)
 
 	// Create API client

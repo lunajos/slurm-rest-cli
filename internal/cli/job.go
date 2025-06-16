@@ -202,7 +202,11 @@ func truncateString(s string, maxLen int) string {
 }
 
 func init() {
+	// Add commands
 	rootCmd.AddCommand(jobCmd)
+	
+	// Add verbose flag for debugging
+	jobCmd.PersistentFlags().BoolP("verbose", "v", false, "Enable verbose output for debugging")
 	jobCmd.AddCommand(jobSubmitCmd)
 	jobCmd.AddCommand(jobListCmd)
 	jobCmd.AddCommand(jobShowCmd)
